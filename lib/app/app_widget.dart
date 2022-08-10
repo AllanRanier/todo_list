@@ -34,6 +34,7 @@ class _AppWidgetState extends State<AppWidget> {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Todo List',
+        debugShowCheckedModeBanner: false,
         initialRoute: '/login',
         theme: TodoListUiConfig.theme,
         routes: {
