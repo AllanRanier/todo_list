@@ -2,7 +2,8 @@
     package="br.com.allanranier.todo_list">
    <application
         android:label="todo_list"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:exported="true"
             android:name=".MainActivity"
