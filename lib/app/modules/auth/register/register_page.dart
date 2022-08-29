@@ -39,9 +39,6 @@ class _RegisterPageState extends State<RegisterPage> {
         listenerNotifier.dispose();
         Navigator.of(context).pop();
       },
-      errorCallback: (notifier, listenerNotifier) {
-        print("DEU RUIM!!");
-      },
     );
   }
 
