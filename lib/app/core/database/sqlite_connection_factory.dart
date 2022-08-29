@@ -5,41 +5,39 @@ import 'package:todo_list/app/core/database/migrations/migration.dart';
 import 'package:todo_list/app/core/database/sqlite_migration_factory.dart';
 
 class SqliteConnectionFactory {
+  static SqliteConnectionFactory? _instance;
+
   static const _VERSION = 1;
   static const _DATABASE_NAME = 'TODO_LIST';
-
-  static SqliteConnectionFactory? _instance;
 
   Database? _db;
   final _lock = Lock();
 
-  SqliteConnectionFactory._(); // contrutor privado
+  SqliteConnectionFactory._();
 
-  factory SqliteConnectionFactory() {
-    if (_instance == null) {
-      _instance = SqliteConnectionFactory._();
-    }
+  static SqliteConnectionFactory get instance {
+    _instance ??= SqliteConnectionFactory._();
 
     return _instance!;
   }
 
   Future<Database> openConnection() async {
-    var databasePath = await getDatabasesPath();
-    var databasePathFinal = join(databasePath, _DATABASE_NAME);
+    final databasePath = await getDatabasesPath();
+    final databasePathFinal = join(databasePath, _DATABASE_NAME);
+
     if (_db == null) {
       await _lock.synchronized(() async {
-        if (_db == null) {
-          _db = await openDatabase(
-            databasePathFinal,
-            version: _VERSION,
-            onConfigure: _onConfigure,
-            onCreate: _onCreate,
-            onUpgrade: _onUpgrade,
-            onDowngrade: _onDowngrade,
-          );
-        }
+        _db ??= await openDatabase(
+          databasePathFinal,
+          version: _VERSION,
+          onConfigure: _onConfigure,
+          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
+          onDowngrade: _onDowngrade,
+        );
       });
     }
+
     return _db!;
   }
 
@@ -49,15 +47,14 @@ class SqliteConnectionFactory {
   }
 
   Future<void> _onConfigure(Database db) async {
-    await db.execute('PROGMA foreign_keys = ON');
+    await db.execute('PRAGMA foreign_keys = ON');
   }
 
   Future<void> _onCreate(Database db, int version) async {
     final batch = db.batch();
-
     final migrations = SqliteMigrationFactory().getCreateMigration();
 
-    for (var migration in migrations) {
+    for (final migration in migrations) {
       migration.create(batch);
     }
 

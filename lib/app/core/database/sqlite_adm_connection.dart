@@ -6,7 +6,7 @@ class SqliteAdmConnection  with WidgetsBindingObserver{
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final connection = SqliteConnectionFactory();
+    final connection = SqliteConnectionFactory.instance;
 
     switch (state) {
       case AppLifecycleState.resumed:

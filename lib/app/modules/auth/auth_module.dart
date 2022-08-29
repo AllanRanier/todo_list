@@ -5,14 +5,15 @@ import 'package:todo_list/app/modules/auth/login/login_page.dart';
 import 'package:todo_list/app/modules/auth/register/register_controller.dart';
 import 'package:todo_list/app/modules/auth/register/register_page.dart';
 
-class AuthModule extends TodolistModule {
+class AuthModule extends TodoListModule {
   AuthModule()
       : super(bindings: [
           ChangeNotifierProvider(
             create: (_) => LoginController(),
           ),
           ChangeNotifierProvider(
-            create: (_) => RegisterController(),
+            create: (context) =>
+                RegisterController(userService: context.read()),
           ),
         ], routers: {
           '/login': (context) => LoginPage(),
