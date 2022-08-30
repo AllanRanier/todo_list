@@ -25,13 +25,13 @@ class _LoginPageState extends State<LoginPage> {
     DefaultListenerNotifier(changerNotifier: context.read<LoginController>())
         .listener(
             context: context,
-            everCallback:  (notifier, listenerNotifier) {
+            everCallback: (notifier, listenerNotifier) {
               if (notifier is LoginController) {
                 if (notifier.hasInfo) {
                   Messages.of(context).showInfo(notifier.infoMessage!);
                 }
               }
-            } ,
+            },
             succesCallback: (notifier, listenerNotifier) {
               print("Login efetuado com sucesso!!!");
             });
@@ -147,11 +147,14 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 30),
                           SignInButton(
                             Buttons.Google,
+                            text: 'Continuar com Google',
                             padding: const EdgeInsets.all(5),
                             shape: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
                                 borderSide: BorderSide.none),
-                            onPressed: () {},
+                            onPressed: () {
+                              context.read<LoginController>().googleLogin();
+                            },
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
