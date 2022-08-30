@@ -12,11 +12,16 @@ class DefaultListenerNotifier {
     required this.changerNotifier,
   });
 
-  void listener(
-      {required BuildContext context,
-      required SuccessvoidCallback succesCallback,
-      ErrorvoidCallback? errorCallback}) {
+  void listener({
+    required BuildContext context,
+    required SuccessvoidCallback succesCallback,
+    ErrorvoidCallback? errorCallback,
+    EverVoidCallback? everCallback,
+  }) {
     changerNotifier.addListener(() {
+      if (everCallback != null) {
+        everCallback(changerNotifier, this);
+      }
       if (changerNotifier.loading) {
         Loader.show(context);
       } else {
@@ -24,7 +29,7 @@ class DefaultListenerNotifier {
       }
 
       if (changerNotifier.hasError) {
-        if(errorCallback != null){
+        if (errorCallback != null) {
           errorCallback(changerNotifier, this);
         }
         Messages.of(context).showError(changerNotifier.error ?? 'Erro interno');
@@ -42,4 +47,7 @@ class DefaultListenerNotifier {
 typedef SuccessvoidCallback = void Function(
     DefaultChangerNotifier notifier, DefaultListenerNotifier listenerNotifier);
 typedef ErrorvoidCallback = void Function(
+    DefaultChangerNotifier notifier, DefaultListenerNotifier listenerNotifier);
+
+typedef EverVoidCallback = void Function(
     DefaultChangerNotifier notifier, DefaultListenerNotifier listenerNotifier);

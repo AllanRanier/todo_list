@@ -43,7 +43,7 @@ class UserRepositoryImpl implements UserRepository {
       final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
 
-          return userCredential.user;
+      return userCredential.user;
     } on PlatformException catch (e, s) {
       print(e);
       print(s);
@@ -52,10 +52,33 @@ class UserRepositoryImpl implements UserRepository {
       print(e);
       print(s);
       if (e.code == "wrong-password") {
-      throw AuthException(message: "Login ou senha inválidos");
-        
+        throw AuthException(message: "Login ou senha inválidos");
       }
       throw AuthException(message: e.message ?? "Erro ao realizar login");
+    }
+  }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    try {
+      final loginMethods =
+          await _firebaseAuth.fetchSignInMethodsForEmail(email);
+
+      if (loginMethods.contains('password')) {
+        await _firebaseAuth.sendPasswordResetEmail(email: email);
+      } else if (loginMethods.contains('password')) {
+        throw AuthException(
+            message:
+                "Cadastro realizado com o google, não pode ser resetado a senha");
+      } else {
+        throw AuthException(
+            message:
+                "E-mail não cadastrado");
+      }
+    } on PlatformException catch (e, s) {
+      print(e);
+      print(s);
+      throw AuthException(message: "Erro ao resetar senha");
     }
   }
 }
