@@ -13,6 +13,7 @@ class HomeDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Color.fromARGB(255, 214, 215, 217),
       child: ListView(
         children: [
           DrawerHeader(
