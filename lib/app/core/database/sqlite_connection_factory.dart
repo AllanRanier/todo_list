@@ -1,14 +1,13 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
-import 'package:todo_list/app/core/database/migrations/migration.dart';
 import 'package:todo_list/app/core/database/sqlite_migration_factory.dart';
 
 class SqliteConnectionFactory {
   static SqliteConnectionFactory? _instance;
 
   static const _VERSION = 1;
-  static const _DATABASE_NAME = 'TODO_LIST';
+  static const _DATABASE_NAME = 'TASKS_LIST';
 
   Database? _db;
   final _lock = Lock();
@@ -63,15 +62,18 @@ class SqliteConnectionFactory {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int version) async {
     final batch = db.batch();
+    final migrations = SqliteMigrationFactory().getUpgradeMigration(oldVersion);
 
-    final migrations = SqliteMigrationFactory().getUpdateMigration(oldVersion);
-
-    for (var migration in migrations) {
-      migration.update(batch);
+    for (final migration in migrations) {
+      migration.upgrade(batch);
     }
 
     batch.commit();
   }
 
-  Future<void> _onDowngrade(Database db, int oldVersion, int version) async {}
+  Future<void> _onDowngrade(Database db, int oldVersion, int version) async {
+    final batch = db.batch();
+
+    batch.commit();
+  }
 }
