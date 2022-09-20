@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_list/app/core/ui/theme_extensions.dart';
 import 'package:todo_list/app/core/ui/todo_list_icons.dart';
+import 'package:todo_list/app/modules/home/home_controller.dart';
 import 'package:todo_list/app/modules/home/widgets/home_drawer.dart';
 import 'package:todo_list/app/modules/home/widgets/home_filters.dart';
 import 'package:todo_list/app/modules/home/widgets/home_header.dart';
@@ -10,16 +11,36 @@ import 'package:todo_list/app/modules/home/widgets/home_week_filter.dart';
 import 'package:todo_list/app/modules/tasks/tasks_create_page.dart';
 import 'package:todo_list/app/modules/tasks/tasks_module.dart';
 
-class HomePage extends StatelessWidget {
-  HomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  final HomeController _homeController;
+  HomePage({
+    Key? key,
+    required HomeController homeController,
+  }) : _homeController = homeController, super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    widget._homeController.loadTotalTasks();
+  }
 
   void _goToCreateTask(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder(
         transitionDuration: Duration(milliseconds: 400),
         transitionsBuilder: ((context, animation, secondaryAnimation, child) {
-          animation = CurvedAnimation(parent: animation, curve: Curves.easeInOutQuad);
-          return ScaleTransition(scale: animation, alignment: Alignment.bottomRight, child: child,);
+          animation =
+              CurvedAnimation(parent: animation, curve: Curves.easeInOutQuad);
+          return ScaleTransition(
+            scale: animation,
+            alignment: Alignment.bottomRight,
+            child: child,
+          );
         }),
         pageBuilder: (context, animation, secondaryAnimation) {
           return TasksModule().getPage('/task/create', context);
