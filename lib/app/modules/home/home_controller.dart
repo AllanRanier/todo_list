@@ -3,6 +3,7 @@ import 'package:todo_list/app/models/task_filter_enum.dart';
 import 'package:todo_list/app/models/task_model.dart';
 import 'package:todo_list/app/models/total_tasks_model.dart';
 import 'package:todo_list/app/models/week_task_model.dart';
+import 'package:todo_list/app/modules/home/widgets/task.dart';
 import 'package:todo_list/app/services/tasks/tasks_service.dart';
 
 class HomeController extends DefaultChangerNotifier {
@@ -13,6 +14,9 @@ class HomeController extends DefaultChangerNotifier {
   TotalTasksModel? weekTotalTasks;
   List<TaskModel> allTasks = [];
   List<TaskModel> filteredTasks = [];
+  DateTime? initialDateOfWeek;
+  DateTime? selectedDay;
+  bool showFinishingTasks = false;
 
   String tasksEmptyMessage = '';
 
@@ -59,39 +63,78 @@ class HomeController extends DefaultChangerNotifier {
       case TaskFilterEnum.today:
         tasks = await _tasksService.getToday();
 
-        if (tasks.isEmpty)
+        if (tasks.isEmpty) {
           tasksEmptyMessage = 'Você não possui tarefas para HOJE!';
-
+        }
         break;
       case TaskFilterEnum.tomorrow:
         tasks = await _tasksService.getTomorrow();
 
-        if (tasks.isEmpty)
+        if (tasks.isEmpty) {
           tasksEmptyMessage = 'Você não possui tarefas para AMANHÃ!';
-
+        }
         break;
       case TaskFilterEnum.week:
         final weekModel = await _tasksService.getWeek();
-
+        initialDateOfWeek = weekModel.startDate;
         tasks = weekModel.task;
-        // initialDateOfWeek = weekModel.startDate;
 
-        if (tasks.isEmpty)
+        if (tasks.isEmpty) {
           tasksEmptyMessage = 'Você não possui tarefas para SEMANA!';
+        }
 
         break;
     }
     filteredTasks = tasks;
     allTasks = tasks;
 
+    if (filter == TaskFilterEnum.week) {
+      if (selectedDay != null) {
+        filterByDay(initialDateOfWeek!);
+      } else if (initialDateOfWeek != null) {
+        filterByDay(initialDateOfWeek!);
+      }
+    }else{
+      selectedDay = null;
+    }
+
+    if (!showFinishingTasks) {
+      filteredTasks = filteredTasks.where((task) => !task.finished).toList();
+    }
     hideLoading();
     notifyListeners();
   }
 
-  Future<void> refreshPage() async{
-  await findTasks(filter: filterSelected);
-  await loadTotalTasks();
+  void filterByDay(DateTime date) {
+    selectedDay = date;
+
+    filteredTasks = allTasks.where((task) {
+      return task.dateTime == date;
+    }).toList();
 
     notifyListeners();
+  }
+
+  Future<void> refreshPage() async {
+    await findTasks(filter: filterSelected);
+    await loadTotalTasks();
+
+    notifyListeners();
+  }
+  Future<void> checkOrUncheckTask(TaskModel task) async{
+    showLoadingAndResetState();
+    notifyListeners();
+    
+    final taskUpdate = task.copyWith(
+      finished: !task.finished
+    );
+    await _tasksService.checkOrUncheckTask(taskUpdate);
+    hideLoading();
+    refreshPage();
+  }
+
+  void showOrHideFinishingTasks(){
+    showFinishingTasks = !showFinishingTasks;
+    refreshPage();
   }
 }
